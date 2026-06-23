@@ -11,6 +11,7 @@ import DeeplinkManager from '../DeeplinkManager';
 import parseOriginatorInfo from '../parseOriginatorInfo';
 import extractURLParams from './extractURLParams';
 import SDKConnectV2 from '../../SDKConnectV2';
+import { isUUID } from '../../SDKConnect/utils/isUUID';
 
 export function handleMetaMaskDeeplink({
   instance,
@@ -59,6 +60,12 @@ export function handleMetaMaskDeeplink({
         },
       );
     } else if (params.channelId) {
+      if (!isUUID(params.channelId)) {
+        throw new Error(
+          `DeepLinkManager failed to connect - channelId is not a valid UUID`,
+        );
+      }
+
       // differentiate between  deeplink callback and socket connection
       if (params.comm === 'deeplinking') {
         if (!params.scheme) {

@@ -99,7 +99,7 @@ describe('checkPermissions', () => {
     mockGetPermittedAccounts.mockReturnValue([]);
 
     connection = {
-      channelId: 'channelId',
+      channelId: '550e8400-e29b-41d4-a716-446655440000',
       isApproved: mockIsApproved,
       revalidate: mockRevalidate,
       initialConnection: true,
@@ -145,6 +145,17 @@ describe('checkPermissions', () => {
 
   afterAll(() => {
     jest.useFakeTimers({ legacyFakeTimers: true });
+  });
+
+  it('should throw if channelId is not a valid UUID', async () => {
+    connection = {
+      ...connection,
+      channelId: 'app.uniswap.org',
+    } as unknown as Connection;
+    await expect(checkPermissions({ connection, engine })).rejects.toThrow(
+      'checkPermissions: invalid channelId format',
+    );
+    expect(mockGetPermittedAccounts).not.toHaveBeenCalled();
   });
 
   it('should return true if permitted accounts exist', async () => {

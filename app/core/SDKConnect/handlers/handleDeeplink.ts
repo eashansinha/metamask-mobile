@@ -9,6 +9,7 @@ import AppConstants from '../../AppConstants';
 import Engine from '../../Engine';
 import SDKConnect from '../SDKConnect';
 import DevLogger from '../utils/DevLogger';
+import { isUUID } from '../utils/isUUID';
 import { waitForCondition, waitForKeychainUnlocked } from '../utils/wait.util';
 import handleConnectionMessage from './handleConnectionMessage';
 
@@ -35,6 +36,12 @@ const handleDeeplink = async ({
   otherPublicKey: string;
   context: string;
 }) => {
+  if (!isUUID(channelId)) {
+    throw new Error(
+      `handleDeeplink: invalid channelId format — expected UUID, got "${channelId}"`,
+    );
+  }
+
   if (!sdkConnect.hasInitialized()) {
     DevLogger.log(
       `handleDeeplink:: sdkConnect not initialized --- waiting for it`,
