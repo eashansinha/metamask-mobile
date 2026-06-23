@@ -1,12 +1,11 @@
-import { ImageSourcePropType } from 'react-native';
 import AppConstants from '../../AppConstants';
 import getRpcMethodMiddleware from '../../RPCMethods/RPCMethodMiddleware';
 import { DappClient } from './dapp-sdk-types';
 
 const getDefaultBridgeParams = (clientInfo: DappClient) => ({
-  getApprovedHosts: (host: string) => ({
-    [host]: true,
-  }),
+  // Do not unconditionally approve all hosts. The host identity comes from
+  // unverified dApp-supplied originatorInfo and must not be trusted.
+  getApprovedHosts: (_host: string) => ({}),
   remoteConnHost:
     clientInfo.originatorInfo.url ?? clientInfo.originatorInfo.title,
   getRpcMethodMiddleware: ({
@@ -32,7 +31,8 @@ const getDefaultBridgeParams = (clientInfo: DappClient) => ({
         current: clientInfo.originatorInfo?.title,
       },
       icon: {
-        current: clientInfo.originatorInfo?.icon as ImageSourcePropType, // TODO: Need to change the type at the @metamask/sdk-communication-layer from string to ImageSourcePropType
+        // Icon stripped during sanitization to prevent favicon spoofing
+        current: undefined,
       },
       // Bookmarks
       isHomepage: () => false,

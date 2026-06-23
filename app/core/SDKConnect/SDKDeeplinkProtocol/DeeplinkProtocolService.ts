@@ -21,6 +21,10 @@ import {
 import handleBatchRpcResponse from '../handlers/handleBatchRpcResponse';
 import handleCustomRpcCalls from '../handlers/handleCustomRpcCalls';
 import DevLogger from '../utils/DevLogger';
+import {
+  isValidOriginatorInfo,
+  sanitizeOriginatorInfo,
+} from '../utils/sanitizeOriginatorInfo';
 import { wait, waitForKeychainUnlocked } from '../utils/wait.util';
 import { AccountsController } from '@metamask/accounts-controller';
 import { toChecksumHexAddress } from '@metamask/controller-utils';
@@ -439,7 +443,20 @@ export default class DeeplinkProtocolService {
 
     const originatorInfoJson = JSON.parse(decodedOriginatorInfo);
 
-    const originatorInfo = originatorInfoJson.originatorInfo;
+    const rawOriginatorInfo = originatorInfoJson.originatorInfo;
+
+    // Validate structure before using attacker-controlled data
+    if (!isValidOriginatorInfo(rawOriginatorInfo)) {
+      const validationError = new Error(
+        'DeeplinkProtocolService::handleConnection invalid originatorInfo structure',
+      );
+      Logger.error(validationError, { channelId: params.channelId });
+      return;
+    }
+
+    // Sanitize the unverified dApp-supplied identity so it cannot spoof
+    // trusted origins in permission/transaction prompts
+    const originatorInfo = sanitizeOriginatorInfo(rawOriginatorInfo);
 
     const clientInfo: DappClient = {
       clientId: params.channelId,
