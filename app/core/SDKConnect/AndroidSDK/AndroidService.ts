@@ -29,7 +29,10 @@ import BatchRPCManager from '../BatchRPCManager';
 import { DEFAULT_SESSION_TIMEOUT_MS } from '../SDKConnectConstants';
 import handleCustomRpcCalls from '../handlers/handleCustomRpcCalls';
 import DevLogger from '../utils/DevLogger';
-import { sanitizeOriginatorInfo } from '../utils/sanitizeOriginatorInfo';
+import {
+  isValidOriginatorInfo,
+  sanitizeOriginatorInfo,
+} from '../utils/sanitizeOriginatorInfo';
 import AndroidSDKEventHandler from './AndroidNativeSDKEventHandler';
 import sendMessage from './AndroidService/sendMessage';
 import { DappClient, DappConnections } from './dapp-sdk-types';
@@ -127,6 +130,15 @@ export default class AndroidService extends EventEmitter2 {
   private setupOnClientsConnectedListener() {
     this.eventHandler.onClientsConnected(async (sClientInfo: string) => {
       const parsedClientInfo: DappClient = JSON.parse(sClientInfo);
+
+      // Validate structure before using dApp-supplied data
+      if (!isValidOriginatorInfo(parsedClientInfo.originatorInfo)) {
+        Logger.error(
+          new Error('AndroidService::clients_connected invalid originatorInfo'),
+          { clientId: parsedClientInfo.clientId },
+        );
+        return;
+      }
 
       // Sanitize dApp-supplied identity to prevent spoofing in prompts
       const clientInfo: DappClient = {
