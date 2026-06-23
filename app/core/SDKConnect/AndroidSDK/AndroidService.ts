@@ -129,7 +129,16 @@ export default class AndroidService extends EventEmitter2 {
 
   private setupOnClientsConnectedListener() {
     this.eventHandler.onClientsConnected(async (sClientInfo: string) => {
-      const parsedClientInfo: DappClient = JSON.parse(sClientInfo);
+      let parsedClientInfo: DappClient;
+      try {
+        parsedClientInfo = JSON.parse(sClientInfo);
+      } catch (e) {
+        Logger.error(
+          e as Error,
+          'AndroidService::clients_connected failed to parse client info',
+        );
+        return;
+      }
 
       // Validate structure before using dApp-supplied data
       if (!isValidOriginatorInfo(parsedClientInfo.originatorInfo)) {

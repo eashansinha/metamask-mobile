@@ -59,16 +59,13 @@ export function sanitizeOriginatorInfo(
 ): OriginatorInfo {
   const sanitized: OriginatorInfo = { ...rawInfo };
 
-  // Truncate fields to prevent UI overflow attacks
-  sanitized.url = truncateField(sanitized.url);
-  sanitized.title = truncateField(sanitized.title);
-
-  // Prefix URL and title to clearly mark them as unverified self-reported values
+  // Prefix URL and title to clearly mark them as unverified self-reported values,
+  // then truncate to MAX_FIELD_LENGTH so the prefix is always preserved.
   if (sanitized.url) {
-    sanitized.url = `${UNVERIFIED_LABEL}${sanitized.url}`;
+    sanitized.url = truncateField(`${UNVERIFIED_LABEL}${sanitized.url}`);
   }
   if (sanitized.title) {
-    sanitized.title = `${UNVERIFIED_LABEL}${sanitized.title}`;
+    sanitized.title = truncateField(`${UNVERIFIED_LABEL}${sanitized.title}`);
   }
 
   // Strip the icon to prevent favicon-based spoofing (e.g. showing Uniswap's logo)

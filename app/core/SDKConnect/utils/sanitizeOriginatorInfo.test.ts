@@ -70,7 +70,7 @@ describe('sanitizeOriginatorInfo', () => {
       expect(result.icon).toBeUndefined();
     });
 
-    it('truncates overly long url values', () => {
+    it('truncates overly long url values to MAX_FIELD_LENGTH including prefix', () => {
       const longUrl = 'https://example.com/' + 'a'.repeat(3000);
       const result = sanitizeOriginatorInfo({
         url: longUrl,
@@ -78,8 +78,8 @@ describe('sanitizeOriginatorInfo', () => {
         platform: 'ios',
         dappId: 'test',
       });
-      // 2048 chars truncated + [Unverified] prefix
-      expect(result.url!.length).toBeLessThan(longUrl.length);
+      // Final length must not exceed 2048 (prefix included)
+      expect(result.url!.length).toBe(2048);
       expect(result.url!.startsWith('[Unverified] ')).toBe(true);
     });
 
