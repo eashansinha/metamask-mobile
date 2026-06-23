@@ -436,14 +436,22 @@ export default class DeeplinkProtocolService {
 
     this.dappPublicKeyByClientId[params.channelId] = params.dappPublicKey;
 
-    const decodedOriginatorInfo = Buffer.from(
-      params.originatorInfo,
-      'base64',
-    ).toString('utf-8');
+    let rawOriginatorInfo: unknown;
+    try {
+      const decodedOriginatorInfo = Buffer.from(
+        params.originatorInfo,
+        'base64',
+      ).toString('utf-8');
 
-    const originatorInfoJson = JSON.parse(decodedOriginatorInfo);
-
-    const rawOriginatorInfo = originatorInfoJson.originatorInfo;
+      const originatorInfoJson = JSON.parse(decodedOriginatorInfo);
+      rawOriginatorInfo = originatorInfoJson.originatorInfo;
+    } catch (e) {
+      Logger.error(
+        e as Error,
+        'DeeplinkProtocolService::handleConnection failed to decode originatorInfo',
+      );
+      return;
+    }
 
     // Validate structure before using attacker-controlled data
     if (!isValidOriginatorInfo(rawOriginatorInfo)) {

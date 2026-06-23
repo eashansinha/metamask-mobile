@@ -29,6 +29,7 @@ import BatchRPCManager from '../BatchRPCManager';
 import { DEFAULT_SESSION_TIMEOUT_MS } from '../SDKConnectConstants';
 import handleCustomRpcCalls from '../handlers/handleCustomRpcCalls';
 import DevLogger from '../utils/DevLogger';
+import { sanitizeOriginatorInfo } from '../utils/sanitizeOriginatorInfo';
 import AndroidSDKEventHandler from './AndroidNativeSDKEventHandler';
 import sendMessage from './AndroidService/sendMessage';
 import { DappClient, DappConnections } from './dapp-sdk-types';
@@ -125,7 +126,13 @@ export default class AndroidService extends EventEmitter2 {
 
   private setupOnClientsConnectedListener() {
     this.eventHandler.onClientsConnected(async (sClientInfo: string) => {
-      const clientInfo: DappClient = JSON.parse(sClientInfo);
+      const parsedClientInfo: DappClient = JSON.parse(sClientInfo);
+
+      // Sanitize dApp-supplied identity to prevent spoofing in prompts
+      const clientInfo: DappClient = {
+        ...parsedClientInfo,
+        originatorInfo: sanitizeOriginatorInfo(parsedClientInfo.originatorInfo),
+      };
 
       DevLogger.log(`AndroidService::clients_connected`, clientInfo);
       if (this.connections?.[clientInfo.clientId]) {
