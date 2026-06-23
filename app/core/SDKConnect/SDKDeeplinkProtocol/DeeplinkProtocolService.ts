@@ -33,6 +33,7 @@ import {
   getPermittedAccounts,
 } from '../../Permissions';
 import { areAddressesEqual, toFormattedAddress } from '../../../util/address';
+import { isUUID } from '../utils/isUUID';
 
 export default class DeeplinkProtocolService {
   public connections: DappConnections = {};
@@ -280,6 +281,12 @@ export default class DeeplinkProtocolService {
     originatorInfo: OriginatorInfo;
     channelId: string;
   }): Promise<unknown> {
+    if (!isUUID(channelId)) {
+      throw new Error(
+        `DeeplinkProtocolService::checkPermission - invalid channelId format — expected UUID, got "${channelId}"`,
+      );
+    }
+
     const permissionsController = (
       Engine.context as {
         // TODO: Replace "any" with type

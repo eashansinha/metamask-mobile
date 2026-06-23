@@ -16,6 +16,7 @@ import { Connection, ConnectionProps } from '../Connection';
 import checkPermissions from '../handlers/checkPermissions';
 import { DEFAULT_SESSION_TIMEOUT_MS } from '../SDKConnectConstants';
 import DevLogger from '../utils/DevLogger';
+import { isUUID } from '../utils/isUUID';
 import { wait, waitForCondition } from '../utils/wait.util';
 import { SDKConnect } from './../SDKConnect';
 
@@ -70,6 +71,12 @@ async function connectToChannel({
       `SDKConnect::connectToChannel - INTERRUPT - connection is paused`,
     );
     return;
+  }
+
+  if (!isUUID(id)) {
+    throw new Error(
+      `SDKConnect::connectToChannel - invalid channelId format — expected UUID, got "${id}"`,
+    );
   }
 
   instance.state.connecting[id] = true;

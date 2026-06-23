@@ -329,7 +329,7 @@ describe('DeeplinkProtocolService', () => {
         'requestPermissions',
       );
       await service.checkPermission({
-        channelId: 'channel1',
+        channelId: '550e8400-e29b-41d4-a716-446655440000',
         originatorInfo: {
           url: 'test.com',
           title: 'Test',
@@ -339,6 +339,22 @@ describe('DeeplinkProtocolService', () => {
       });
       expect(spy).toHaveBeenCalled();
     });
+
+    it('should throw if channelId is not a valid UUID', async () => {
+      await expect(
+        service.checkPermission({
+          channelId: 'app.uniswap.org',
+          originatorInfo: {
+            url: 'test.com',
+            title: 'Test',
+            platform: 'test',
+            dappId: 'dappId',
+          },
+        }),
+      ).rejects.toThrow(
+        'DeeplinkProtocolService::checkPermission - invalid channelId format',
+      );
+    });
   });
 
   describe('handleConnection', () => {
@@ -347,7 +363,7 @@ describe('DeeplinkProtocolService', () => {
         dappPublicKey: 'key',
         url: 'url',
         scheme: 'scheme',
-        channelId: 'channel1',
+        channelId: '550e8400-e29b-41d4-a716-446655440000',
         originatorInfo: Buffer.from(
           JSON.stringify({
             originatorInfo: { url: 'test.com', title: 'Test' },

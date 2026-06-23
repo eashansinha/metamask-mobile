@@ -159,7 +159,7 @@ describe('handleMetaMaskProtocol', () => {
     beforeEach(() => {
       url = `${PREFIXES.METAMASK}${ACTIONS.CONNECT}`;
       params.comm = 'deeplinking';
-      params.channelId = 'test-channel-id';
+      params.channelId = '550e8400-e29b-41d4-a716-446655440000';
       params.pubkey = 'test-pubkey';
       params.originatorInfo = 'test-originator-info';
       params.request = 'test-request';
@@ -215,7 +215,7 @@ describe('handleMetaMaskProtocol', () => {
   describe('when url starts with ${PREFIXES.METAMASK}${ACTIONS.MMSDK}', () => {
     beforeEach(() => {
       url = `${PREFIXES.METAMASK}${ACTIONS.MMSDK}`;
-      params.channelId = 'test-channel-id';
+      params.channelId = '550e8400-e29b-41d4-a716-446655440000';
       params.pubkey = 'test-pubkey';
       params.account = 'test-account';
     });
@@ -316,11 +316,28 @@ describe('handleMetaMaskProtocol', () => {
       });
     });
 
+    it('should throw if channelId is not a valid UUID', () => {
+      origin = AppConstants.DEEPLINKS.ORIGIN_DEEPLINK;
+      params.channelId = 'app.uniswap.org';
+      params.redirect = '';
+
+      expect(() => {
+        handleMetaMaskDeeplink({
+          instance,
+          handled,
+          params,
+          url,
+          origin,
+          wcURL,
+        });
+      }).toThrow('DeepLinkManager failed to connect - channelId is not a valid UUID');
+    });
+
     it('should call handleDeeplink when channel exists and params.redirect is falsy', () => {
       origin = AppConstants.DEEPLINKS.ORIGIN_DEEPLINK;
-      params.channelId = 'ABC';
+      params.channelId = '550e8400-e29b-41d4-a716-446655440000';
       params.redirect = '';
-      mockGetApprovedHosts.mockReturnValue({ ABC: true });
+      mockGetApprovedHosts.mockReturnValue({ '550e8400-e29b-41d4-a716-446655440000': true });
 
       handleMetaMaskDeeplink({
         instance,

@@ -13,6 +13,7 @@ import {
 } from '../../Permissions';
 import { Connection } from '../Connection';
 import DevLogger from '../utils/DevLogger';
+import { isUUID } from '../utils/isUUID';
 import {
   wait,
   waitForCondition,
@@ -41,6 +42,12 @@ export const checkPermissions = async ({
       `checkPermissions initialConnection=${connection.initialConnection} method=${message?.method} lastAuthorized=${lastAuthorized}`,
       connection.originatorInfo,
     );
+
+    if (!isUUID(connection.channelId)) {
+      throw new Error(
+        `checkPermissions: invalid channelId format — expected UUID, got "${connection.channelId}"`,
+      );
+    }
 
     const permittedAccounts = getPermittedAccounts(connection.channelId);
     DevLogger.log(`checkPermissions permittedAccounts`, permittedAccounts);
