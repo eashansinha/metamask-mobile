@@ -124,6 +124,12 @@ export function handleMetaMaskDeeplink({
       );
     }
 
+    if (params.channelId && !isUUID(params.channelId)) {
+      throw new Error(
+        `DeepLinkManager failed to handleMessage - channelId is not a valid UUID`,
+      );
+    }
+
     SDKConnect.getInstance().state.deeplinkingService?.handleMessage({
       channelId: params.channelId,
       url,
